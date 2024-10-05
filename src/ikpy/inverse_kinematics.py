@@ -123,8 +123,9 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, r
     # If a regularization is selected
     if regularization_parameter is not None:
         def optimize_total(x):
-            regularization = np.linalg.norm(x - chain.active_from_full(starting_nodes_angles))
-            return optimize_function(x) + regularization_parameter * regularization
+            dist = np.abs(x - chain.active_from_full(starting_nodes_angles))
+            regularization = np.sum(dist * regularization_parameter)
+            return optimize_function(x) + regularization
     else:
         optimize_total = optimize_function
 
