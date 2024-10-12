@@ -4,10 +4,12 @@ import numpy as np
 from . import logs
 
 
-ORIENTATION_COEFF = 1.
 
-
-def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, regularization_parameter=None, max_iter=None, orientation_mode=None, no_position=False, optimizer="least_squares"):
+def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles,
+                                   regularization_parameter=None, max_iter=None,
+                                   orientation_mode=None,
+                                   orientation_coef=1.,
+                                   no_position=False, optimizer="least_squares"):
     """
     Computes the inverse kinematic on the specified target
 
@@ -30,6 +32,8 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, r
         * "Y": Target the Y axis
         * "Z": Target the Z axis
         * "all": Target the three axes
+    orientation_coef: float
+        The coefficient of the orientation error.
     no_position: bool
         Do not optimize against position
     optimizer: str
@@ -105,7 +109,7 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles, r
                 orientation_error = (get_orientation(fk) - target_orientation).ravel()
 
                 # Put more pressure on optimizing the distance to target, to avoid being stuck in a local minimum where the orientation is perfectly reached, but the target is nowhere to be reached
-                total_error = np.concatenate([target_error, ORIENTATION_COEFF * orientation_error])
+                total_error = np.concatenate([target_error, orientation_coef * orientation_error])
 
                 return total_error
         else:
