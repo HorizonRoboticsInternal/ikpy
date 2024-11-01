@@ -35,7 +35,7 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles,
         * "all": Target the three axes
     orientation_coef: float
         The coefficient of the orientation error.
-    max_delta_joint_pos: float
+    max_delta_joint_pos: float or List[float]
         The maximum allowed delta joint pos if not None, wrt ``starting_node_angles``
     no_position: bool
         Do not optimize against position
@@ -143,11 +143,13 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles,
 
     starting_pos = chain.active_from_full(starting_nodes_angles)
     if max_delta_joint_pos is not None:
+        if isinstance(max_delta_joint_pos, float):
+            max_delta_joint_pos = [max_delta_joint_pos] * len(real_bounds)
         for i in range(len(real_bounds)):
             l, u = real_bounds[i]
             p = starting_pos[i]
-            l = max(l, p - max_delta_joint_pos)
-            u = min(u, p + max_delta_joint_pos)
+            l = max(l, p - max_delta_joint_pos[i])
+            u = min(u, p + max_delta_joint_pos[i])
             real_bounds[i] = (l, u)
 
     logs.logger.info("Bounds: {}".format(real_bounds))
