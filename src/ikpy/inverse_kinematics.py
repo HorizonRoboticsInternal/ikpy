@@ -152,6 +152,14 @@ def inverse_kinematic_optimization(chain, target_frame, starting_nodes_angles,
             u = min(u, p + max_delta_joint_pos[i])
             real_bounds[i] = (l, u)
 
+    for i in range(len(real_bounds)):
+        # Also need to clip the starting position into the bound, to
+        # avoid scipy complaining about 'x0' being infeasible due to floating
+        # error.
+        starting_pos[i] = np.clip(starting_pos[i],
+                                  real_bounds[i][0] + 1e-6,
+                                  real_bounds[i][1] - 1e-6)
+
     logs.logger.info("Bounds: {}".format(real_bounds))
 
     if max_iter is not None:
